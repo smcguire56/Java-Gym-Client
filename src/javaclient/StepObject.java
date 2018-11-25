@@ -1,11 +1,5 @@
 package javaclient;
 
-/**
- * Information that is returned from a step in the environment.
- * https://gym.openai.com/docs/#observations
- * 
- * @author Ryan Amaral - (ryan-amaral on GitHub)
- */
 public class StepObject {
 	public Object observation;
 	public float reward;

@@ -2,117 +2,146 @@ package agent;
 
 import javaclient.*;
 
-import java.awt.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class SampleAgent {
-
-	static int action;
-	static int counter = 0;
-	static int episode_count = 1000;
-	static int max_steps = 2000;
-	static float reward = 0;
-	static boolean done = false;
-	static int scoreRequirement = 50;
-
+	/*
+	 * Adapted from: https://github.com/Ryan-Amaral/working-gym-java-client
+	 */
 	public static void main(String[] args) {
 
-		GymJavaHttpClient.baseUrl = "http://127.0.0.1:5000"; // this is the default value, but just showing that you can
-		// change it
+		GymJavaHttpClient.baseUrl = "http://127.0.0.1:5000";
 
-		String id = GymJavaHttpClient.createEnv("CartPole-v0"); // create an environment
+		String id = GymJavaHttpClient.createEnv("CartPole-v0");
 
 		Object actionSpace = GymJavaHttpClient.actionSpace(id);
 
-		// Do this if not a standard attribute
-		System.out.println(actionSpace.getClass().getName()); // helpful to know how to deal with
-		System.out.println(actionSpace); // helpful to see format of object
+		System.out.println(actionSpace.getClass().getName());
 
-		Object obs = GymJavaHttpClient.resetEnv(id); // reset the environment (get initial observation)
-		System.out.println(obs.getClass().getName());// see what observation looks like to work with it
+		Object obs = GymJavaHttpClient.resetEnv(id);
+
+		System.out.println(obs.getClass().getName());
 		System.out.println(obs.toString());
 
-		// randomGames(id, obs);
+		//randomGames(id, obs);
+
 		initialPopulation(id, obs);
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void initialPopulation(String id, Object obs) {
-		int score = 0;
-		Map<ArrayList<Double>, ArrayList<Integer>> trainingData = new LinkedHashMap<ArrayList<Double>, ArrayList<Integer>>();
 
-		ArrayList<Integer> scores = new ArrayList<Integer>();
+		int action;
+		int episode_count = 100;
+		int max_steps = 1000;
+		float reward = 0;
+		boolean done = false;
+		int scoreRequirement = 50;
+		int score = 0;
 
 		ArrayList<Integer> AcceptedScores = new ArrayList<Integer>();
-		
+
 		for (int i = 0; i < episode_count; i++) {
-			obs = GymJavaHttpClient.resetEnv(id);
-
 			score = 0;
-			Map<ArrayList<Object>, Integer> gameMemory = new LinkedHashMap<ArrayList<Object>, Integer>();
+			Map<Object, Integer> gameMemory = new LinkedHashMap<Object, Integer>();
 
-			ArrayList<Object> prevObservation = new ArrayList<Object>();
+			Object prevObservation = new Object();
 
 			for (int j = 0; j < max_steps; j++) {
 
 				action = obsToAction(obs);
-				StepObject step = GymJavaHttpClient.stepEnv(id, action, true, false);
-				obs = step.observation;
-				done = step.done;
-				reward = step.reward;
 
-				if (!prevObservation.isEmpty()) {
+				StepObject step;
+				try {
+					step = GymJavaHttpClient.stepEnv(id, action, true, false);
+					obs = step.observation;
+					done = step.done;
+					reward = step.reward;
+				} catch (Exception e) {
+					break;
+				}
+
+				if (prevObservation != null) {
 					gameMemory.put(prevObservation, action);
 				}
-				prevObservation.add(obs);
+				prevObservation = obs;
 				score += reward;
-
-				counter++;
-				System.out.println("Action: " + action);
-				System.out.println("obs: " + obs.toString());
-				System.out.println("done: " + done);
-				System.out.println("counter: " + counter);
-				System.out.println("reward: " + reward);
-				System.out.println(GymJavaHttpClient.listEnvs());
 
 				if (done) {
 					break;
 				}
 
+				/*System.out.println("Action: " + action);
+				System.out.println("obs: " + obs.toString());
+				System.out.println("done: " + done);
+				System.out.println("reward: " + reward);
+				System.out.println(GymJavaHttpClient.listEnvs());*/
+
 				if (score >= scoreRequirement) {
 					AcceptedScores.add(score);
-					
 					gameMemory.forEach((k, v) -> {
-					    ArrayList<Integer> output = new ArrayList<Integer>();
-						if(v == 1) {
-							//output = [0,1];
-							//output.add(1);
+						// converting to one-hot
+						int[] output = new int[2];
+						if (v == 1) {
+							output[0] = 0;
+							output[1] = 1;
+						} else if (v == 0) {
+							output[0] = 1;
+							output[1] = 0;
 						}
-						else if (v == 0) {
-							//output.add(1,0);
 
-						}
-						
-						trainingData.put(null, output);
+						System.out.println(k.toString() + " " + Arrays.toString(output));
 					});
 				}
 			}
+			try {
+				obs = GymJavaHttpClient.resetEnv(id);
+			} catch (Exception e) {
+				break;
+			}
 
+		} // for loop
+
+		System.out.println("Average accepted score: " + mean(AcceptedScores));
+		System.out.println("Median score for accepted scores:" + median(AcceptedScores));
+		System.out.println("Counter: " + AcceptedScores.size());
+	}
+
+	public static double mean(List<Integer> marks) {
+		Integer sum = 0;
+		if (!marks.isEmpty()) {
+			for (Integer mark : marks) {
+				sum += mark;
+			}
+			return sum.doubleValue() / marks.size();
 		}
+		return sum;
+	}
 
-
-
+	public static double median(List<Integer> sets) {
+		if (sets.isEmpty()) {
+			return 0;
+		}
+		int middle = sets.size() / 2;
+		middle = middle > 0 && middle % 2 == 0 ? middle - 1 : middle;
+		return sets.get(middle);
 	}
 
 	private static void randomGames(String id, Object obs) {
+		int action;
+		int counter = 0;
+		int episode_count = 100;
+		int max_steps = 2000;
+		float reward = 0;
+		boolean done = false;
 
 		for (int i = 0; i < episode_count; i++) {
 
@@ -121,11 +150,19 @@ public class SampleAgent {
 			for (int j = 0; j < max_steps; j++) {
 
 				action = obsToAction(obs);
-				StepObject step = GymJavaHttpClient.stepEnv(id, action, true, true);
-				obs = step.observation;
-				done = step.done;
-				reward = step.reward;
-				counter++;
+				StepObject step;
+				try {
+					step = GymJavaHttpClient.stepEnv(id, action, true, false);
+					obs = step.observation;
+					done = step.done;
+					reward = step.reward;
+					counter++;
+				} catch (Exception e) {
+					// e.printStackTrace();
+					System.out.println("EOF");
+					break;
+				}
+
 				System.out.println("Action: " + action);
 				System.out.println("obs: " + obs.toString());
 				System.out.println("done: " + done);
