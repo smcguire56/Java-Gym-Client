@@ -12,11 +12,12 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class SampleAgent {
+public class Runner {
 	/*
 	 * Adapted from: https://github.com/Ryan-Amaral/working-gym-java-client
 	 */
 	public static void main(String[] args) {
+		System.out.println("running main");
 
 		GymJavaHttpClient.baseUrl = "http://127.0.0.1:5000";
 
@@ -30,12 +31,16 @@ public class SampleAgent {
 
 		System.out.println(obs.getClass().getName());
 		System.out.println(obs.toString());
-
+		
+		Environment e = new Environment();
+		System.out.println("running experiments");
+		e.runExperiments(id, obs);
 		//randomGames(id, obs);
-
-		initialPopulation(id, obs);
+		//initialPopulation(id, obs);
 
 	}
+	
+	
 
 	private static void initialPopulation(String id, Object obs) {
 
@@ -61,7 +66,7 @@ public class SampleAgent {
 
 				StepObject step;
 				try {
-					step = GymJavaHttpClient.stepEnv(id, action, true, false);
+					step = GymJavaHttpClient.stepEnv(id, action, true, true);
 					obs = step.observation;
 					done = step.done;
 					reward = step.reward;
