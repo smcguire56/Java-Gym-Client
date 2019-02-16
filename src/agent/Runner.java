@@ -2,6 +2,7 @@ package agent;
 
 import javaclient.*;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -35,6 +36,8 @@ public class Runner {
 		Environment e = new Environment();
 		System.out.println("running experiments");
 		e.runExperiments(id, obs);
+
+		// other examples...
 		//randomGames(id, obs);
 		//initialPopulation(id, obs);
 

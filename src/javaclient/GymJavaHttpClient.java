@@ -175,7 +175,8 @@ public class GymJavaHttpClient {
 			json = new JSONObject(response);
 			scanner.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.println("Unable to read");
 		}
 
 		return json;
@@ -204,7 +205,7 @@ public class GymJavaHttpClient {
 				wr.close();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("unable to connect to server");
 		}
 	}
 
