@@ -12,14 +12,15 @@ public class Agent {
 	 * 
 	 */
 
-	private static int cartPosition = 1;
-	private static int cartVelocity = 1;
-	private static int poleAngle = 6;
-	private static int poleVelocity = 12;
+	private static int num = 8;
+	private static int cartPosition = num;
+	private static int cartVelocity = num;
+	private static int poleAngle = 12;
+	private static int poleVelocity = num;
 
 	private float alpha = 0.1f;
 	private float gamma = 1.0f;
-	private float epsilon = 0.1f;
+	private float epsilon = 1.0f;
 
 	private int numActions = 2;
 
@@ -39,9 +40,6 @@ public class Agent {
 	}
 
 	private void initialiseQvalues() {
-
-		System.out.print("Setting Q table to 0 ");
-
 		for (int i = 0; i < cartPosition; i++) {
 			for (int j = 0; j < cartVelocity; j++) {
 				for (int x = 0; x < poleAngle; x++) {
@@ -53,18 +51,12 @@ public class Agent {
 				}
 			}
 		}
-
-		/*
-		 * System.out.println("Printing Q Table: "); for (int i = 0; i < cartPosition;
-		 * i++) { for (int j = 0; j < cartVelocity; j++) { for (int x = 0; x <
-		 * poleAngle; x++) { for (int y = 0; y < poleVelocity; y++) { for (int z = 0; z
-		 * < actions; z++) { System.out.print(" "+qTable[i][j][x][y][z]); } }
-		 * System.out.println(); } System.out.println(); } System.out.println(); }
-		 */
 	}
 
 	// update the Q value
 	public void updateQValue(int[] previousState, int selectedAction, int[] currentState, float reward) {
+		
+		//System.out.println(previousState[0]+" "+selectedAction+" "+currentState[0]+" "+reward);
 		// implementation of Q-learning TD update rule
 		float oldQ = qTable[previousState[0]][previousState[1]][previousState[2]][previousState[3]][selectedAction];
 		float maxQ = getMaxQValue(currentState);
