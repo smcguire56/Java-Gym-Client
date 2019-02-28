@@ -6,7 +6,7 @@ import javaclient.GymJavaHttpClient;
 import javaclient.StepObject;
 
 public class Environment {
-	private int numEpisodes = 5000;
+	private int numEpisodes = 1000;
 
 	private Agent agent;
 	private int[] currentAgentState = new int[] { -1, -1, -1, -1 }; // agent's current state of agent
@@ -18,7 +18,17 @@ public class Environment {
 	private float gamma = 1.0f;
 	private float epsilon = 0.10f;
 
-	private ArrayList <Float> bufferedList = new ArrayList<Float>();
+	private ArrayList <Float> totalRewardEpisode = new ArrayList<Float>();
+
+	private final float cartPosMin = -2.4f;
+	private final float cartPosMax = 2.4f;
+	private final float cartVelMin = -10f;
+	private final float cartVelMax = 10f;
+	private final float poleAngleMin = -41.8f;
+	private final float poleAngleMax = 41.8f;
+	private final float poleVelMin = -10f;
+	private final float poleVelMax = 10f;
+
 	// obsValue is the initial observed value
 	// minValue is the minimum that observation can be
 	// maxValue is the maximum that observation can be
@@ -37,11 +47,13 @@ public class Environment {
 		float bucket = obsValue / bucketIncrement;
 
 		bucketIndex = (int) bucket;
-		
+		System.out.println("obs: "+ obsValue + " min: "+ minValue + " max: " + maxValue + " num" + numBuckets +" bucketIndex " + bucketIndex);
+
 		return bucketIndex;
 	}
 
 	public void runExperiments(String id, Object obs) {
+		// run 10x times
 		setupAgent();
 		// reset agent position
 		currentAgentState[0] = agent.getCartPosition() / 2;
@@ -53,7 +65,7 @@ public class Environment {
 			doEpisode(id, obs);
 		}
 		for (int i = 0; i < numEpisodes; i++) {
-			System.out.println(bufferedList.get(i));
+			System.out.println(totalRewardEpisode.get(i));
 		}
 	}
 
@@ -82,7 +94,7 @@ public class Environment {
 			action = agent.selectAction(currentAgentState);
 			// action = agent.selectRandomAction();
 
-
+			System.out.println("action:" +action);
 			StepObject step;
 			try {
 				step = GymJavaHttpClient.stepEnv(id, action, true, true);
@@ -105,12 +117,12 @@ public class Environment {
 			String ObsToString = obs.toString();
 			ObsToString = ObsToString.replaceAll("\\[", "").replaceAll("\\]", "");
 			String[] observations = ObsToString.split(",");
-			currentAgentState[0] = getBucketIndex(Float.parseFloat(observations[0]), (float) -5, (float) 5,(float) agent.getCartPosition());
-			currentAgentState[1] = getBucketIndex(Float.parseFloat(observations[1]), (float) -5, (float) 5,(float) agent.getCartVelocity());
-			currentAgentState[2] = getBucketIndex(Float.parseFloat(observations[2]), (float) -5, (float) 5,(float) agent.getPoleAngle());
-			currentAgentState[3] = getBucketIndex(Float.parseFloat(observations[3]), (float) -5, (float) 5,(float) agent.getPoleVelocity());
-			
 
+			currentAgentState[0] = getBucketIndex(Float.parseFloat(observations[0]), cartPosMin, cartPosMax,(float) agent.getCartPosition());
+			currentAgentState[1] = getBucketIndex(Float.parseFloat(observations[1]), cartVelMin, cartVelMax,(float) agent.getCartVelocity());
+			currentAgentState[2] = getBucketIndex(Float.parseFloat(observations[2]), poleAngleMin, poleAngleMax,(float) agent.getPoleAngle());
+			currentAgentState[3] = getBucketIndex(Float.parseFloat(observations[3]), poleVelMin, poleVelMax,(float) agent.getPoleVelocity());
+			
 			// update q value table here
 			agent.updateQValue(previousAgentState, action, currentAgentState, reward);
 			
@@ -118,8 +130,11 @@ public class Environment {
 				break;
 			}
 		}
-		bufferedList.add(episodeReward);		
+		totalRewardEpisode.add(episodeReward);		
 	}
 	
-
+	public ArrayList<Float> getTotalRewardEpisode() {
+		return totalRewardEpisode;
+	}
+	
 }

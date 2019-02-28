@@ -12,15 +12,16 @@ public class Agent {
 	 * 
 	 */
 
-	private static int num = 8;
+	private static int num = 10;
 	private static int cartPosition = num;
 	private static int cartVelocity = num;
-	private static int poleAngle = 12;
+	private static int poleAngle = num;
 	private static int poleVelocity = num;
 
 	private float alpha = 0.1f;
 	private float gamma = 1.0f;
-	private float epsilon = 1.0f;
+	// decay epsilon
+	private float epsilon = 0.1f;
 
 	private int numActions = 2;
 
@@ -62,6 +63,7 @@ public class Agent {
 		float maxQ = getMaxQValue(currentState);
 		float newQ = oldQ + alpha * (reward + gamma * maxQ - oldQ);
 		qTable[previousState[0]][previousState[1]][previousState[2]][previousState[3]][selectedAction] = newQ;
+		System.out.println("oldQ: "+ oldQ + " max: " + maxQ + " new:" + newQ);
 	}
 
 	private float getMaxQValue(int[] state) {

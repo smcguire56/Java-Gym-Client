@@ -2,23 +2,17 @@ package agent;
 
 import javaclient.*;
 
-import java.text.DecimalFormat;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class Runner {
 	/*
 	 * Adapted from: https://github.com/Ryan-Amaral/working-gym-java-client
 	 */
 	public static void main(String[] args) {
-		System.out.println("running main");
+		ArrayList<ArrayList<Float>> results = new ArrayList<ArrayList<Float>>();
 
 		GymJavaHttpClient.baseUrl = "http://127.0.0.1:5000";
 
@@ -36,5 +30,33 @@ public class Runner {
 		Environment e = new Environment();
 		System.out.println("running experiments");
 		e.runExperiments(id, obs);
+		results.add(e.getTotalRewardEpisode());
+
+		resultsToCSVFile(results, id);
+
+	}
+
+	private static void resultsToCSVFile(ArrayList<ArrayList<Float>> results, String id) {
+		String resultsTable = resultsToCSVStr(results);
+		try (PrintStream out = new PrintStream(
+				new FileOutputStream("output/episodeReward.csv"))) {
+			out.print(resultsTable);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private static String resultsToCSVStr(ArrayList<ArrayList<Float>> results) {
+		// method to output experimental results in comma separated value format
+		String output = "Results";
+		for (int time = 0; time < results.get(0).size(); time++) {
+			output += "\n" ;
+			for (int run = 0; run < results.size(); run++) {
+				output += time + ", " + results.get(run).get(time);
+			}
+		}
+		return output;
+
 	}
 }
