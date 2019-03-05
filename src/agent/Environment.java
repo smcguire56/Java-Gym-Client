@@ -6,7 +6,7 @@ import javaclient.GymJavaHttpClient;
 import javaclient.StepObject;
 
 public class Environment {
-	private int numEpisodes = 1000;
+	private int numEpisodes = 10;
 
 	private Agent agent;
 	private int[] currentAgentState = new int[] { -1, -1, -1, -1 }; // agent's current state of agent
@@ -17,6 +17,8 @@ public class Environment {
 	private float alpha = 0.10f;
 	private float gamma = 1.0f;
 	private float epsilon = 0.10f;
+	private float epsilonDecayRate = 0.999f;
+	private boolean epsilonDecays = false;
 
 	private ArrayList <Float> totalRewardEpisode = new ArrayList<Float>();
 
@@ -47,7 +49,7 @@ public class Environment {
 		float bucket = obsValue / bucketIncrement;
 
 		bucketIndex = (int) bucket;
-		System.out.println("obs: "+ obsValue + " min: "+ minValue + " max: " + maxValue + " num" + numBuckets +" bucketIndex " + bucketIndex);
+		//System.out.println("obs: "+ obsValue + " min: "+ minValue + " max: " + maxValue + " num" + numBuckets +" bucketIndex " + bucketIndex);
 
 		return bucketIndex;
 	}
@@ -94,7 +96,6 @@ public class Environment {
 			action = agent.selectAction(currentAgentState);
 			// action = agent.selectRandomAction();
 
-			System.out.println("action:" +action);
 			StepObject step;
 			try {
 				step = GymJavaHttpClient.stepEnv(id, action, true, true);
@@ -130,7 +131,15 @@ public class Environment {
 				break;
 			}
 		}
+		decayEpsilon();
 		totalRewardEpisode.add(episodeReward);		
+	}
+	
+	public void decayEpsilon() {
+		if (epsilonDecays) {
+			epsilon = epsilon * epsilonDecayRate;
+			agent.setEpsilon(epsilon);
+		}
 	}
 	
 	public ArrayList<Float> getTotalRewardEpisode() {

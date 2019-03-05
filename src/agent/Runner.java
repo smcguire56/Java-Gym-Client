@@ -30,6 +30,7 @@ public class Runner {
 		Environment e = new Environment();
 		System.out.println("running experiments");
 		e.runExperiments(id, obs);
+		
 		results.add(e.getTotalRewardEpisode());
 
 		resultsToCSVFile(results, id);
@@ -47,16 +48,18 @@ public class Runner {
 		}
 	}
 
-	private static String resultsToCSVStr(ArrayList<ArrayList<Float>> results) {
-		// method to output experimental results in comma separated value format
-		String output = "Results";
+	// method to output experimental results in comma separated value format
+	public static String resultsToCSVStr(ArrayList<ArrayList<Float>> results) {
+		String output = "Episode No.,";
+		for (int run = 0; run < results.size(); run++) {
+			output += "Run" + run + "steps,";
+		}
 		for (int time = 0; time < results.get(0).size(); time++) {
-			output += "\n" ;
+			output += "\n" + time + ",";
 			for (int run = 0; run < results.size(); run++) {
-				output += time + ", " + results.get(run).get(time);
+				output += "" + results.get(run).get(time) + ",";
 			}
 		}
 		return output;
-
 	}
 }

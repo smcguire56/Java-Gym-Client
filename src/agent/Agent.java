@@ -63,7 +63,7 @@ public class Agent {
 		float maxQ = getMaxQValue(currentState);
 		float newQ = oldQ + alpha * (reward + gamma * maxQ - oldQ);
 		qTable[previousState[0]][previousState[1]][previousState[2]][previousState[3]][selectedAction] = newQ;
-		System.out.println("oldQ: "+ oldQ + " max: " + maxQ + " new:" + newQ);
+		//System.out.println("oldQ: "+ oldQ + " max: " + maxQ + " new:" + newQ);
 	}
 
 	private float getMaxQValue(int[] state) {
@@ -123,6 +123,11 @@ public class Agent {
 
 	public int getPoleVelocity() {
 		return poleVelocity;
+	}
+
+	public void setEpsilon(float epsilon) {
+		System.out.println("epsilon: " + epsilon);
+		this.epsilon = epsilon;		
 	}
 
 }
