@@ -18,7 +18,7 @@ public class Agent {
 	private static int poleAngle = num;
 	private static int poleVelocity = num;
 
-	private float alpha = 0.1f;
+	private float alpha = 0.2f;
 	private float gamma = 1.0f;
 	// decay epsilon
 	private float epsilon = 0.1f;

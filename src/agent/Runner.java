@@ -12,15 +12,10 @@ public class Runner {
 	 * Adapted from: https://github.com/Ryan-Amaral/working-gym-java-client
 	 */
 	public static void main(String[] args) {
-		ArrayList<ArrayList<Float>> results = new ArrayList<ArrayList<Float>>();
 
 		GymJavaHttpClient.baseUrl = "http://127.0.0.1:5000";
 
 		String id = GymJavaHttpClient.createEnv("CartPole-v0");
-
-		Object actionSpace = GymJavaHttpClient.actionSpace(id);
-
-		System.out.println(actionSpace.getClass().getName());
 
 		Object obs = GymJavaHttpClient.resetEnv(id);
 
@@ -31,9 +26,7 @@ public class Runner {
 		System.out.println("running experiments");
 		e.runExperiments(id, obs);
 		
-		results.add(e.getTotalRewardEpisode());
-
-		resultsToCSVFile(results, id);
+		resultsToCSVFile(e.getTotalRewardEpisode(), id);
 
 	}
 
