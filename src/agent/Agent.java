@@ -12,11 +12,11 @@ public class Agent {
 	 * 
 	 */
 
-	private static int num = 10;
-	private static int cartPosition = num;
-	private static int cartVelocity = num;
-	private static int poleAngle = num;
-	private static int poleVelocity = num;
+	//private static int num = 10;
+	private static int cartPosition = 10;
+	private static int cartVelocity = 10;
+	private static int poleAngle = 10;
+	private static int poleVelocity = 10;
 
 	private float alpha = 0.2f;
 	private float gamma = 1.0f;
@@ -94,6 +94,7 @@ public class Agent {
 		// select a random action with probability epsilon
 		// else select the most valuable action
 		if (randomValue < epsilon) {
+			System.out.println("random action");
 			selectedAction = selectRandomAction();
 		}
 		else {

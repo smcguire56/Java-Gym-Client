@@ -6,14 +6,14 @@ import javaclient.GymJavaHttpClient;
 import javaclient.StepObject;
 
 public class Environment {
-	private int numEpisodes = 10000;
+	private int numEpisodes = 10;
+	private int loopEpisode = 2;
 
 	private Agent agent;
 	private int[] currentAgentState = new int[] { -1, -1, -1, -1 }; // agent's current state of agent
 	private int[] previousAgentState = new int[] { -1, -1, -1, -1 };// agent's previous state of agent
 
 	private int numActions = 2;
-	private int loopEpisode = 2;
 
 	private float alpha = 0.20f;
 	private float gamma = 1.0f;
