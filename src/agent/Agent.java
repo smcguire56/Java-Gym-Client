@@ -13,14 +13,13 @@ public class Agent {
 	 */
 
 	//private static int num = 10;
-	private static int cartPosition = 10;
-	private static int cartVelocity = 10;
-	private static int poleAngle = 10;
-	private static int poleVelocity = 10;
+	private static int cartPosition = 1;
+	private static int cartVelocity = 1;
+	private static int poleAngle	= 12;
+	private static int poleVelocity = 24;
 
-	private float alpha = 0.2f;
+	private float alpha = 0.1f;
 	private float gamma = 1.0f;
-	// decay epsilon
 	private float epsilon = 0.1f;
 
 	private int numActions = 2;
@@ -57,13 +56,13 @@ public class Agent {
 	// update the Q value
 	public void updateQValue(int[] previousState, int selectedAction, int[] currentState, float reward) {
 		
-		//System.out.println(previousState[0]+" "+selectedAction+" "+currentState[0]+" "+reward);
+		//System.out.println("previousState: " + previousState[0] +","+ previousState[1]+","+ previousState[2]+","+ previousState[3] 
+				//+" selectedAction:"+selectedAction+"\ncurrentState:  "+currentState[0] +"," + currentState[1] +"," + currentState[2] +"," + currentState[3] + " reward: "+ reward+ " epsilon: "+ epsilon+ " alpha: "+ alpha);
 		// implementation of Q-learning TD update rule
 		float oldQ = qTable[previousState[0]][previousState[1]][previousState[2]][previousState[3]][selectedAction];
 		float maxQ = getMaxQValue(currentState);
 		float newQ = oldQ + alpha * (reward + gamma * maxQ - oldQ);
 		qTable[previousState[0]][previousState[1]][previousState[2]][previousState[3]][selectedAction] = newQ;
-		//System.out.println("oldQ: "+ oldQ + " max: " + maxQ + " new:" + newQ);
 	}
 
 	private float getMaxQValue(int[] state) {
@@ -94,7 +93,6 @@ public class Agent {
 		// select a random action with probability epsilon
 		// else select the most valuable action
 		if (randomValue < epsilon) {
-			System.out.println("random action");
 			selectedAction = selectRandomAction();
 		}
 		else {
@@ -127,8 +125,11 @@ public class Agent {
 	}
 
 	public void setEpsilon(float epsilon) {
-		System.out.println("epsilon: " + epsilon);
 		this.epsilon = epsilon;		
+	}
+
+	public void setAlpha(float alpha) {
+		this.alpha = alpha;
 	}
 
 }

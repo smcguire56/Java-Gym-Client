@@ -6,8 +6,8 @@ import javaclient.GymJavaHttpClient;
 import javaclient.StepObject;
 
 public class Environment {
-	private int numEpisodes = 10;
-	private int loopEpisode = 2;
+	private int numEpisodes = 100;
+	private int loopEpisode = 10;
 
 	private Agent agent;
 	private int[] currentAgentState = new int[] { -1, -1, -1, -1 }; // agent's current state of agent
@@ -15,20 +15,24 @@ public class Environment {
 
 	private int numActions = 2;
 
-	private float alpha = 0.20f;
+	private float alpha = 1.0f;
+	private float minAlpha = 0.1f;
 	private float gamma = 1.0f;
 	private float epsilon = 0.10f;
-	private float epsilonDecayRate = 0.9999f;
-	private boolean epsilonDecays = true;
+	private float epsilonDecayRate = 0.999f;
+	private float alphaDecayRate = 0.999f;
+	private boolean epsilonDecays = false;
+	private boolean alphaDecays = true;
+	
 
 	 private ArrayList<ArrayList<Float>> totalRewardAllRuns = new ArrayList<ArrayList<Float>>();
 
-	private final float cartPosMin = -10f;
-	private final float cartPosMax = 10f;
+	private final float cartPosMin = -24f;
+	private final float cartPosMax = 24f;
 	private final float cartVelMin = -10f;
 	private final float cartVelMax = 10f;
-	private final float poleAngleMin = -20f;
-	private final float poleAngleMax = 20f;
+	private final float poleAngleMin = -41.8f;
+	private final float poleAngleMax = 41.8f;
 	private final float poleVelMin = -10f;
 	private final float poleVelMax = 10f;
 
@@ -50,30 +54,26 @@ public class Environment {
 		float bucket = obsValue / bucketIncrement;
 
 		bucketIndex = (int) bucket;
-		// System.out.println("obs: "+ obsValue + " min: "+ minValue + " max: " +
-		// maxValue + " num" + numBuckets +" bucketIndex " + bucketIndex);
-
+		
 		return bucketIndex;
 	}
 
 	public void runExperiments(String id, Object obs) {
-		// run 10x times
 
-		for (int j = 0; j < loopEpisode; j++) {
+		for (int j = 1; j <= loopEpisode; j++) {
 			 ArrayList<Float> totalRewardEpisode = new ArrayList<Float>();
 			
 			setupAgent();
 			
 			for (int i = 1; i <= numEpisodes; i++) {
-				System.out.println("Episode: " + i);
+				
+				System.out.printf("Episode: %d, Inner: %d\n" ,j, i);
 				float epReward = doEpisode(id, obs);
 				totalRewardEpisode.add(epReward);
-				System.out.println("reward: " +epReward);
 			}
 			totalRewardAllRuns.add(totalRewardEpisode);
-			resetEnvironment();
+			//resetEnvironment();
 		}
-		//System.out.println(totalRewardAllRuns);
 	}
 
 	private void resetEnvironment() {
@@ -92,6 +92,7 @@ public class Environment {
 		float reward = 0;
 		boolean done = false;
 		float episodeReward = 0;
+		ArrayList<Integer> scores = new ArrayList<Integer>();
 
 		try {
 			obs = GymJavaHttpClient.resetEnv(id);
@@ -122,8 +123,7 @@ public class Environment {
 				step = GymJavaHttpClient.stepEnv(id, action, true, true);
 				obs = step.observation;
 				done = step.done;
-				// save reward to float for each episode, then to a array list, print to a text
-				// file.
+				// save reward to float for each episode, then to a array list, print to a text file.
 				reward = step.reward;
 				episodeReward += reward;
 
@@ -131,7 +131,7 @@ public class Environment {
 				System.out.println("EOF");
 				break;
 			}
-
+			                       
 			for (int i = 0; i < 4; i++) {
 				previousAgentState[i] = currentAgentState[i];
 			}
@@ -158,6 +158,7 @@ public class Environment {
 			}
 		}
 		decayEpsilon();
+		decayAlpha();
 		return episodeReward;
 	}
 
@@ -168,8 +169,26 @@ public class Environment {
 		}
 	}
 
+
+	public void decayAlpha() {
+		if (alphaDecays && alpha >= minAlpha) {
+			alpha = alpha * alphaDecayRate;
+			agent.setAlpha(alpha);
+		}
+	}
 	public ArrayList<ArrayList<Float>> getTotalRewardEpisode() {
 		return totalRewardAllRuns;
 	}
+	
+	private double calculateAverage(ArrayList<Integer> scores) {
+		  Integer sum = 0;
+		  if(!scores.isEmpty()) {
+		    for (Integer score : scores) {
+		        sum += score;
+		    }
+		    return sum.doubleValue() / scores.size();
+		  }
+		  return sum;
+		}
 
 }
