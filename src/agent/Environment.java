@@ -6,8 +6,8 @@ import javaclient.GymJavaHttpClient;
 import javaclient.StepObject;
 
 public class Environment {
-	private int numEpisodes = 100;
-	private int loopEpisode = 10;
+	private int numEpisodes = 1000;
+	private int loopEpisode = 1;
 
 	private Agent agent;
 	private int[] currentAgentState = new int[] { -1, -1, -1, -1 }; // agent's current state of agent
@@ -18,11 +18,11 @@ public class Environment {
 	private float alpha = 1.0f;
 	private float minAlpha = 0.1f;
 	private float gamma = 1.0f;
-	private float epsilon = 0.10f;
+	private float epsilon = 0.05f;
 	private float epsilonDecayRate = 0.999f;
 	private float alphaDecayRate = 0.999f;
 	private boolean epsilonDecays = false;
-	private boolean alphaDecays = true;
+	private boolean alphaDecays = false;
 	
 
 	 private ArrayList<ArrayList<Float>> totalRewardAllRuns = new ArrayList<ArrayList<Float>>();
@@ -59,20 +59,32 @@ public class Environment {
 	}
 
 	public void runExperiments(String id, Object obs) {
-
+		
 		for (int j = 1; j <= loopEpisode; j++) {
 			 ArrayList<Float> totalRewardEpisode = new ArrayList<Float>();
 			
 			setupAgent();
-			
+			float averageReward = 0;
+
 			for (int i = 1; i <= numEpisodes; i++) {
-				
-				System.out.printf("Episode: %d, Inner: %d\n" ,j, i);
+
+				//System.out.printf("Episode: %d, Inner: %d\n" ,j, i);
 				float epReward = doEpisode(id, obs);
+				
+				averageReward += epReward;
+				
+				if(i % 100 == 0) {
+					
+					averageReward /= 100;
+					System.out.println("Average Reward after "+i+": " + averageReward);
+					averageReward = 0;
+				}
+				
 				totalRewardEpisode.add(epReward);
 			}
+
 			totalRewardAllRuns.add(totalRewardEpisode);
-			//resetEnvironment();
+			resetEnvironment();
 		}
 	}
 
@@ -92,6 +104,7 @@ public class Environment {
 		float reward = 0;
 		boolean done = false;
 		float episodeReward = 0;
+		
 		ArrayList<Integer> scores = new ArrayList<Integer>();
 
 		try {
@@ -171,24 +184,22 @@ public class Environment {
 
 
 	public void decayAlpha() {
-		if (alphaDecays && alpha >= minAlpha) {
-			alpha = alpha * alphaDecayRate;
-			agent.setAlpha(alpha);
+		if (alphaDecays) {
+			if(agent.getAlpha() >= minAlpha) 
+			{
+				alpha = alpha * alphaDecayRate;
+				agent.setAlpha(alpha);			
+			}
+			else {
+				alpha = minAlpha;
+				agent.setAlpha(minAlpha);			
+				alphaDecays = false;
+			}
+
 		}
 	}
 	public ArrayList<ArrayList<Float>> getTotalRewardEpisode() {
 		return totalRewardAllRuns;
 	}
-	
-	private double calculateAverage(ArrayList<Integer> scores) {
-		  Integer sum = 0;
-		  if(!scores.isEmpty()) {
-		    for (Integer score : scores) {
-		        sum += score;
-		    }
-		    return sum.doubleValue() / scores.size();
-		  }
-		  return sum;
-		}
 
 }
