@@ -12,15 +12,14 @@ public class Agent {
 	 * 
 	 */
 
-	//private static int num = 10;
-	private static int cartPosition = 1;
-	private static int cartVelocity = 1;
-	private static int poleAngle	= 6;
-	private static int poleVelocity = 12;
+	private static int cartPosition = 10;
+	private static int cartVelocity = 5;
+	private static int poleAngle	= 20;
+	private static int poleVelocity = 25;
 
-	private float alpha = 1.0f;
-	private float gamma = 1.0f;
-	private float epsilon = 0.05f;
+	private float alpha   = 0.3f;
+	private float gamma   = 1.0f;
+	private float epsilon = 0.3f;
 
 	private int numActions = 2;
 
@@ -45,7 +44,7 @@ public class Agent {
 				for (int x = 0; x < poleAngle; x++) {
 					for (int y = 0; y < poleVelocity; y++) {
 						for (int z = 0; z < numActions; z++) {
-							qTable[i][j][x][y][z] = 0;
+							qTable[i][j][x][y][z] = 0.0f;
 						}
 					}
 				}
@@ -126,6 +125,9 @@ public class Agent {
 
 	public void setEpsilon(float epsilon) {
 		this.epsilon = epsilon;		
+	}
+	public float getEpsilon() {
+		return epsilon;
 	}
 
 	public void setAlpha(float alpha) {
