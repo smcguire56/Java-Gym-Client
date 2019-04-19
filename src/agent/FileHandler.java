@@ -31,7 +31,7 @@ public class FileHandler {
 		for (int time = 0; time < results.get(0).size(); time++) {
 			output += "\n" + time + ",";
 			for (int run = 0; run < results.size(); run++) {
-				output += "" + results.get(run).get(time) + ",";
+				output += "" + Math.round(results.get(run).get(time))  + ",";
 			}
 		}
 		return output;

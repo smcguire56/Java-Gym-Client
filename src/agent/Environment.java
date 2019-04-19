@@ -6,7 +6,7 @@ import javaclient.GymJavaHttpClient;
 import javaclient.StepObject;
 
 public class Environment {
-	private int numEpisodes = 1000;
+	private int numEpisodes = 2500;
 	private int loopEpisode = 4;
 
 	private Agent agent;
@@ -18,7 +18,7 @@ public class Environment {
 	private final float alpha = 0.2f;
 	private final float minAlpha = 0.1f;
 	private final float epsilon = 0.3f;
-	private final float minEpsilon = 0.01f;
+	private final float minEpsilon = 0f;
 	
 	private final float gamma = 1.0f;
 	private float epsilonDecayRate = 0.999f;
