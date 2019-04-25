@@ -2,61 +2,45 @@ package agent;
 
 public class Agent {
 	/*
-	 * Initialise QTable: 
+	 * Initialise QTable:
+	 * 
 	 * [obs1] = Cart Position 
 	 * [obs2] = Cart Velocity 
 	 * [obs3] = Pole Angle 
 	 * [obs4] = Pole Velocity At Tip
 	 * 
-	 * [act] = action 1 or 0
+	 * [action] = action 1 or 0
 	 * 
 	 */
-
-	private static int cartPosition = 10;
-	private static int cartVelocity = 5;
-	private static int poleAngle	= 20;
-	private static int poleVelocity = 25;
-
-	private float alpha   = 0.3f;
-	private float gamma   = 1.0f;
+	private float alpha = 0.3f;
+	private float gamma = 1f;
 	private float epsilon = 0.3f;
+
+	private final int cartPosition = 10;
+	private final int cartVelocity = 5;
+	private final int poleAngle = 20;
+	private final int poleVelocity = 25;
 
 	private int numActions = 2;
 
+	// Q-Table of size from buckets and actions above
 	float[][][][][] qTable = new float[cartPosition][cartVelocity][poleAngle][poleVelocity][numActions];
 
+	// New Agent constructor
 	public Agent(int numActions) {
 		this.numActions = numActions;
-		initialiseQvalues();
 	}
 
+	// New Agent constructor
 	public Agent(int numActions, float alpha, float gamma, float epsilon) {
 		this.numActions = numActions;
 		this.alpha = alpha;
 		this.gamma = gamma;
 		this.epsilon = epsilon;
-		initialiseQvalues();
-	}
-
-	private void initialiseQvalues() {
-		for (int i = 0; i < cartPosition; i++) {
-			for (int j = 0; j < cartVelocity; j++) {
-				for (int x = 0; x < poleAngle; x++) {
-					for (int y = 0; y < poleVelocity; y++) {
-						for (int z = 0; z < numActions; z++) {
-							qTable[i][j][x][y][z] = 0.0f;
-						}
-					}
-				}
-			}
-		}
 	}
 
 	// update the Q value
 	public void updateQValue(int[] previousState, int selectedAction, int[] currentState, float reward) {
-		
-		//System.out.println("previousState: " + previousState[0] +","+ previousState[1]+","+ previousState[2]+","+ previousState[3] 
-			//	+" selectedAction:"+selectedAction+"\ncurrentState:  "+currentState[0] +"," + currentState[1] +"," + currentState[2] +"," + currentState[3] + " reward: "+ reward+ " epsilon: "+ epsilon+ " alpha: "+ alpha);
 		// implementation of Q-learning TD update rule
 		float oldQ = qTable[previousState[0]][previousState[1]][previousState[2]][previousState[3]][selectedAction];
 		float maxQ = getMaxQValue(currentState);
@@ -76,11 +60,15 @@ public class Agent {
 		int maxIndex = -1;
 		float maxValue = -Float.MAX_VALUE;
 		for (int action = 0; action < numActions; action++) {
+			// if Q-Value here is greater than maxValue
 			if (qTable[state[0]][state[1]][state[2]][state[3]][action] > maxValue) {
+				// Assign maxIndex to the action
 				maxIndex = action;
+				// Assign maxValue to that Q-Value
 				maxValue = qTable[state[0]][state[1]][state[2]][state[3]][action];
 			}
 		}
+		// Return better action
 		return maxIndex;
 	}
 
@@ -93,8 +81,7 @@ public class Agent {
 		// else select the most valuable action
 		if (randomValue < epsilon) {
 			selectedAction = selectRandomAction();
-		}
-		else {
+		} else {
 			selectedAction = getMaxValuedAction(state);
 		}
 
@@ -102,11 +89,51 @@ public class Agent {
 	}
 
 	public int selectRandomAction() {
-		// select a random action between 0 and (numActions-1)
+		// Selects a random action; either 0 (Left) or 1 (Right)
 		return (int) (Math.random() * numActions);
 	}
 
-	// getters and setters
+	// Getters and Setters for each variable
+	public float getAlpha() {
+		return alpha;
+	}
+
+	public void setAlpha(float alpha) {
+		this.alpha = alpha;
+	}
+
+	public float getGamma() {
+		return gamma;
+	}
+
+	public void setGamma(float gamma) {
+		this.gamma = gamma;
+	}
+
+	public float getEpsilon() {
+		return epsilon;
+	}
+
+	public void setEpsilon(float epsilon) {
+		this.epsilon = epsilon;
+	}
+
+	public int getNumActions() {
+		return numActions;
+	}
+
+	public void setNumActions(int numActions) {
+		this.numActions = numActions;
+	}
+
+	public float[][][][][] getqTable() {
+		return qTable;
+	}
+
+	public void setqTable(float[][][][][] qTable) {
+		this.qTable = qTable;
+	}
+
 	public int getCartPosition() {
 		return cartPosition;
 	}
@@ -121,21 +148,6 @@ public class Agent {
 
 	public int getPoleVelocity() {
 		return poleVelocity;
-	}
-
-	public void setEpsilon(float epsilon) {
-		this.epsilon = epsilon;		
-	}
-	public float getEpsilon() {
-		return epsilon;
-	}
-
-	public void setAlpha(float alpha) {
-		this.alpha = alpha;
-	}
-	
-	public float getAlpha() {
-		return alpha;
 	}
 
 }
